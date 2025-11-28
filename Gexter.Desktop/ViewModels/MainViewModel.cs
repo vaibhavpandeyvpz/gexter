@@ -194,6 +194,11 @@ public partial class MainViewModel : ObservableObject
         GameColor = System.Windows.Media.Brushes.Gray;
         WindowTitle = "Gexter by VPZ";
         StatusMessage = "Ready";
+        
+        // Reset search and filter boxes
+        SearchText = string.Empty;
+        TableSearchText = string.Empty;
+        CaseSensitive = false;
     }
 
     [RelayCommand]
@@ -478,6 +483,11 @@ public partial class MainViewModel : ObservableObject
             Tables.Clear();
             FilteredTables.Clear();
             FilteredEntries.Clear();
+
+            // Reset search and filter boxes
+            SearchText = string.Empty;
+            TableSearchText = string.Empty;
+            CaseSensitive = false;
 
             _loadedFile = GxtLoader.Load(filePath, keepKeyNames: true);
             _currentFilePath = filePath;
