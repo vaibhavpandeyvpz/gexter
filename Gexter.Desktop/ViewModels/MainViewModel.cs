@@ -14,7 +14,7 @@ public partial class MainViewModel : ObservableObject
     private string? _currentFilePath;
 
     [ObservableProperty]
-    private string _windowTitle = "Gexter - GXT Editor";
+    private string _windowTitle = "Gexter by VPZ";
 
     [ObservableProperty]
     private string _statusMessage = "Ready";
@@ -156,7 +156,7 @@ public partial class MainViewModel : ObservableObject
         SelectedEntry = null;
         GameName = string.Empty;
         GameColor = System.Windows.Media.Brushes.Gray;
-        WindowTitle = "Gexter - GXT Editor";
+        WindowTitle = "Gexter by VPZ";
         StatusMessage = "Ready";
     }
 
@@ -486,7 +486,7 @@ public partial class MainViewModel : ObservableObject
                 SelectedTable = FilteredTables[0];
             }
 
-            WindowTitle = $"Gexter - {Path.GetFileName(filePath)}";
+            WindowTitle = $"Gexter by VPZ - {Path.GetFileName(filePath)}";
             StatusMessage = $"Loaded {TotalTables} tables, {TotalEntries} entries";
         }
         catch (Exception ex)
