@@ -74,7 +74,19 @@ public class GxtLoader : IDisposable
 #endif
             _encodingRegistered = true;
         }
-        Windows1252 = Encoding.GetEncoding(1252);
+        
+        // Get Windows-1252 encoding
+        // On .NET Framework, Windows-1252 is built-in and should work without issues
+        // On .NET Core/5+, we need the CodePages provider registered above
+        try
+        {
+            Windows1252 = Encoding.GetEncoding(1252);
+        }
+        catch (ArgumentException)
+        {
+            // Fallback if encoding is not available (shouldn't happen with proper setup)
+            Windows1252 = Encoding.GetEncoding("windows-1252");
+        }
     }
 
     private readonly BinaryReader _reader;
@@ -474,8 +486,17 @@ public class GxtLoader : IDisposable
         }
         _currentPosition += bytes.Count + 1;
 
+        if (bytes.Count == 0)
+            return string.Empty;
+
         // Use Windows-1252 encoding for GTA SA/IV (common for Western languages)
-        return Windows1252.GetString(bytes.ToArray());
+        // Windows-1252 supports all byte values 0-255, so we should never get replacement characters
+        var byteArray = bytes.ToArray();
+        var decoder = Windows1252.GetDecoder();
+        var charCount = decoder.GetCharCount(byteArray, 0, byteArray.Length);
+        var chars = new char[charCount];
+        decoder.GetChars(byteArray, 0, byteArray.Length, chars, 0);
+        return new string(chars);
     }
 
     private static string ReadUtf16String(byte[] data)
@@ -489,7 +510,15 @@ public class GxtLoader : IDisposable
             length += 2;
         }
 
-        return Encoding.Unicode.GetString(data, 0, length);
+        if (length == 0)
+            return string.Empty;
+
+        // Use decoder to ensure proper handling across all platforms
+        var decoder = Encoding.Unicode.GetDecoder();
+        var charCount = decoder.GetCharCount(data, 0, length);
+        var chars = new char[charCount];
+        decoder.GetChars(data, 0, length, chars, 0);
+        return new string(chars);
     }
 
     private Encoding GetDefaultEncoding()

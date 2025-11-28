@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Gexter;
@@ -123,6 +124,27 @@ public class GxtFile : IEnumerable<GxtTable>
     public IEnumerator<GxtTable> GetEnumerator() => _tables.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <summary>
+    /// Saves the GXT file to a file.
+    /// </summary>
+    /// <param name="filePath">The path to save the file to.</param>
+    public void Save(string filePath)
+    {
+        using var writer = new GxtWriter(filePath);
+        writer.Write(this);
+    }
+
+    /// <summary>
+    /// Saves the GXT file to a stream.
+    /// </summary>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="leaveOpen">Whether to leave the stream open after writing.</param>
+    public void Save(Stream stream, bool leaveOpen = false)
+    {
+        using var writer = new GxtWriter(stream, leaveOpen);
+        writer.Write(this);
+    }
 
     public override string ToString() => $"GxtFile[{Version}] ({TableCount} tables, {GetTotalEntryCount()} entries)";
 }

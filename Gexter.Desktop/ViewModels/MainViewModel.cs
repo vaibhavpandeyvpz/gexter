@@ -4,6 +4,7 @@ using Gexter.Desktop.Models;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 using System.Windows;
 
 namespace Gexter.Desktop.ViewModels;
@@ -117,10 +118,26 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void SaveFile()
     {
-        if (!IsFileLoaded || _loadedFile == null) return;
+        if (!IsFileLoaded || _loadedFile == null || string.IsNullOrEmpty(_currentFilePath)) return;
 
-        MessageDialog.Show("Save functionality will be implemented in a future update.",
-            "Save", MessageDialogType.Info, MessageDialogButtons.Ok);
+        try
+        {
+            SyncModelsToFile();
+            _loadedFile.Save(_currentFilePath);
+            
+            // Reset modified state after successful save
+            foreach (var table in Tables)
+            {
+                table.ResetModified();
+            }
+
+            StatusMessage = $"Saved to {Path.GetFileName(_currentFilePath)}";
+        }
+        catch (Exception ex)
+        {
+            MessageDialog.Show($"Error saving file: {ex.Message}", "Save Error",
+                MessageDialogType.Error, MessageDialogButtons.Ok);
+        }
     }
 
     [RelayCommand]
@@ -131,13 +148,32 @@ public partial class MainViewModel : ObservableObject
         var dialog = new SaveFileDialog
         {
             Filter = "GXT Files (*.gxt)|*.gxt|All Files (*.*)|*.*",
-            Title = "Save GXT File As"
+            Title = "Save GXT File As",
+            FileName = _currentFilePath != null ? Path.GetFileName(_currentFilePath) : "untitled.gxt"
         };
 
         if (dialog.ShowDialog() == true)
         {
-            MessageDialog.Show("Save As functionality will be implemented in a future update.",
-                "Save As", MessageDialogType.Info, MessageDialogButtons.Ok);
+            try
+            {
+                SyncModelsToFile();
+                _loadedFile.Save(dialog.FileName);
+                _currentFilePath = dialog.FileName;
+                
+                // Reset modified state after successful save
+                foreach (var table in Tables)
+                {
+                    table.ResetModified();
+                }
+
+                WindowTitle = $"Gexter by VPZ - {Path.GetFileName(dialog.FileName)}";
+                StatusMessage = $"Saved to {Path.GetFileName(dialog.FileName)}";
+            }
+            catch (Exception ex)
+            {
+                MessageDialog.Show($"Error saving file: {ex.Message}", "Save Error",
+                    MessageDialogType.Error, MessageDialogButtons.Ok);
+            }
         }
     }
 
@@ -610,6 +646,47 @@ public partial class MainViewModel : ObservableObject
             .Replace("\n", "\\n")
             .Replace("\r", "\\r")
             .Replace("\t", "\\t");
+    }
+
+    private void SyncModelsToFile()
+    {
+        if (_loadedFile == null) return;
+
+        // Rebuild tables from UI models
+        var newTables = new List<GxtTable>();
+
+        foreach (var tableModel in Tables)
+        {
+            // Get encoding from original table or use default
+            var originalTable = _loadedFile[tableModel.Name];
+            var encoding = originalTable?.InternalEncoding ?? 
+                (FileVersion == GxtVersion.ViceCityIII 
+                    ? System.Text.Encoding.Unicode 
+                    : System.Text.Encoding.GetEncoding(1252));
+
+            // Create new table with same name and encoding
+            var newTable = new GxtTable(tableModel.Name, encoding, keepKeyNames: true);
+
+            // Copy all entries from UI model
+            foreach (var entryModel in tableModel.Entries)
+            {
+                if (!string.IsNullOrEmpty(entryModel.KeyName))
+                {
+                    // Use key name if available (for VC/III)
+                    newTable.SetValue(entryModel.KeyName, entryModel.Value);
+                }
+                else
+                {
+                    // Use hash directly (for SA/IV)
+                    newTable.SetValue(entryModel.KeyHash, entryModel.Value);
+                }
+            }
+
+            newTables.Add(newTable);
+        }
+
+        // Rebuild GxtFile with updated tables
+        _loadedFile = new GxtFile(FileVersion, newTables);
     }
 
     private void UpdateGameInfo()

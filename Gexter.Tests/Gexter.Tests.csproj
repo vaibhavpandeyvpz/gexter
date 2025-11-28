@@ -17,6 +17,10 @@
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
