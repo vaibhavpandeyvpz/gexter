@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Gexter.Tests;
 
 [TestFixture]

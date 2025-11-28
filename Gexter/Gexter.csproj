@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;net472;net481;netstandard2.0;netcoreapp3.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
-    <ImplicitUsings Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'net472' AND '$(TargetFramework)' != 'net481' AND '$(TargetFramework)' != 'netstandard2.0'">enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
     <Version>1.0.0</Version>
     <Authors>Vaibhav Pandey</Authors>
     <Description>GXT File Viewer and Editor Library for GTA Games (III, VC, SA, IV)</Description>

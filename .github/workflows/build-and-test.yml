@@ -9,28 +9,26 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        target-framework: [net452, net472, net481, netstandard2.0, netcoreapp3.1, net5.0, net6.0, net7.0, net8.0, net9.0, net10.0]
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
+    - name: Checkout
+      uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
-    
+        dotnet-version: |
+          6.0.x
+          7.0.x
+          8.0.x
+          9.0.x
+          10.0.x
+
     - name: Restore dependencies
       run: dotnet restore
-    
-    - name: Build library
-      run: dotnet build Gexter/Gexter.csproj --framework ${{ matrix.target-framework }} --no-restore
-    
-    - name: Run tests
-      run: dotnet test Gexter.Tests/Gexter.Tests.csproj --no-build --verbosity normal
-      continue-on-error: ${{ matrix.target-framework != 'net8.0' }}
-    
-    - name: Build tests
-      run: dotnet build Gexter.Tests/Gexter.Tests.csproj --no-restore
+
+    - name: Build Solution
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Test
+      run: dotnet test --configuration Release --no-build --verbosity normal
