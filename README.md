@@ -33,7 +33,7 @@
 - **Multi-lingual Support** - Proper encoding handling for UTF-16LE (III/VC) and Windows-1252 (SA/IV)
 
 ### Library
-- **Cross-Platform** - Supports .NET Framework 4.5.2+, .NET Standard 2.0, .NET Core 3.1+, and .NET 5.0, 7.0-10.0
+- **Cross-Platform** - Supports .NET Framework 4.5.2+, .NET Standard 2.0, .NET Core 3.1+, and .NET 5.0, 7.0-9.0
 - **Type-Safe API** - Clean, intuitive API for reading and manipulating GXT files
 - **Read & Write Support** - Full support for reading and writing GXT files in all supported formats
 - **Memory Efficient** - Stream-based reading and writing for large files
