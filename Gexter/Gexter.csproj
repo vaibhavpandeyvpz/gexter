@@ -15,10 +15,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'net472' AND '$(TargetFramework)' != 'net481'">
-      <PrivateAssets>all</PrivateAssets>
-      <Publish>true</Publish>
-    </PackageReference>
+    <!-- Required for Windows-1252 encoding support on .NET Core/.NET 5+ (not needed for .NET Framework) -->
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'net472' AND '$(TargetFramework)' != 'net481'" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'netcoreapp3.1'">
