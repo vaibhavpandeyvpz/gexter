@@ -21,6 +21,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'netcoreapp3.1'">
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net481'">
     <Reference Include="System.Text.Encoding" />
   </ItemGroup>

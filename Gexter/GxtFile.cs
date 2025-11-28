@@ -56,8 +56,15 @@ public class GxtFile : IEnumerable<GxtTable>
     /// </summary>
     /// <param name="tableName">The table name (case-insensitive).</param>
     /// <returns>The table, or null if not found.</returns>
-    public GxtTable? this[string tableName] =>
-        _tablesByName.TryGetValue(tableName, out var table) ? table : null;
+    public GxtTable this[string tableName]
+    {
+        get
+        {
+            if (_tablesByName.TryGetValue(tableName, out var table))
+                return table;
+            return null;
+        }
+    }
 
     /// <summary>
     /// Gets a table by index.
@@ -72,7 +79,7 @@ public class GxtFile : IEnumerable<GxtTable>
     /// <param name="tableName">The table name.</param>
     /// <param name="table">The table if found.</param>
     /// <returns>True if the table was found, false otherwise.</returns>
-    public bool TryGetTable(string tableName, out GxtTable? table)
+    public bool TryGetTable(string tableName, out GxtTable table)
     {
         return _tablesByName.TryGetValue(tableName, out table);
     }
@@ -101,7 +108,7 @@ public class GxtFile : IEnumerable<GxtTable>
     /// </summary>
     /// <param name="keyHash">The key hash to search for.</param>
     /// <returns>The value if found, or null.</returns>
-    public string? FindValue(uint keyHash)
+    public string FindValue(uint keyHash)
     {
         foreach (var table in _tables)
         {
@@ -116,7 +123,7 @@ public class GxtFile : IEnumerable<GxtTable>
     /// </summary>
     /// <param name="key">The key name to search for.</param>
     /// <returns>The value if found, or null.</returns>
-    public string? FindValue(string key)
+    public string FindValue(string key)
     {
         return FindValue(Crc32.Compute(key));
     }

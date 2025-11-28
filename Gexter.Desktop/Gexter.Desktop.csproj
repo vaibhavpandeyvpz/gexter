@@ -28,6 +28,11 @@
     <ProjectReference Include="..\Gexter\Gexter.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <!-- Suppress NU1701 for FontAwesome.WPF - package works fine on .NET 8.0 despite targeting .NET Framework -->
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />

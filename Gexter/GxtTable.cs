@@ -12,7 +12,7 @@ namespace Gexter;
 public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
 {
     private readonly Dictionary<uint, string> _entries = new();
-    private readonly Dictionary<uint, string>? _keyNames;
+    private readonly Dictionary<uint, string> _keyNames;
 
     /// <summary>
     /// Gets the table name.
@@ -55,7 +55,7 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
         Name = name;
         InternalEncoding = internalEncoding;
         KeepKeyNames = keepKeyNames;
-        _keyNames = keepKeyNames ? new Dictionary<uint, string>() : null;
+        _keyNames = keepKeyNames ? new Dictionary<uint, string>() : new Dictionary<uint, string>();
     }
 
     /// <summary>
@@ -63,9 +63,14 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// </summary>
     /// <param name="keyHash">The CRC32 hash of the key.</param>
     /// <returns>The entry value, or null if not found.</returns>
-    public string? this[uint keyHash]
+    public string this[uint keyHash]
     {
-        get => TryGetValue(keyHash, out var value) ? value : null;
+        get
+        {
+            if (TryGetValue(keyHash, out var value))
+                return value;
+            return null;
+        }
         set
         {
             if (value != null)
@@ -78,7 +83,7 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// </summary>
     /// <param name="key">The key name.</param>
     /// <returns>The entry value, or null if not found.</returns>
-    public string? this[string key]
+    public string this[string key]
     {
         get => this[Crc32.Compute(key)];
         set => SetValue(key, value ?? string.Empty);
@@ -89,9 +94,11 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// </summary>
     /// <param name="keyHash">The CRC32 hash of the key.</param>
     /// <returns>The entry value, or null if not found.</returns>
-    public string? GetValue(uint keyHash)
+    public string GetValue(uint keyHash)
     {
-        return _entries.TryGetValue(keyHash, out var value) ? value : null;
+        if (_entries.TryGetValue(keyHash, out var value))
+            return value;
+        return null;
     }
 
     /// <summary>
@@ -99,7 +106,7 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// </summary>
     /// <param name="key">The key name.</param>
     /// <returns>The entry value, or null if not found.</returns>
-    public string? GetValue(string key)
+    public string GetValue(string key)
     {
         return GetValue(Crc32.Compute(key));
     }
@@ -110,7 +117,7 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// <param name="keyHash">The CRC32 hash of the key.</param>
     /// <param name="value">The entry value if found.</param>
     /// <returns>True if the entry was found, false otherwise.</returns>
-    public bool TryGetValue(uint keyHash, out string? value)
+    public bool TryGetValue(uint keyHash, out string value)
     {
         return _entries.TryGetValue(keyHash, out value);
     }
@@ -121,7 +128,7 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// <param name="key">The key name.</param>
     /// <param name="value">The entry value if found.</param>
     /// <returns>True if the entry was found, false otherwise.</returns>
-    public bool TryGetValue(string key, out string? value)
+    public bool TryGetValue(string key, out string value)
     {
         return TryGetValue(Crc32.Compute(key), out value);
     }
@@ -146,7 +153,7 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
         var keyHash = Crc32.Compute(key);
         _entries[keyHash] = value;
 
-        if (_keyNames != null)
+        if (KeepKeyNames)
             _keyNames[keyHash] = key;
     }
 
@@ -155,9 +162,11 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// </summary>
     /// <param name="keyHash">The CRC32 hash of the key.</param>
     /// <returns>The original key name, or null if not available.</returns>
-    public string? GetKeyName(uint keyHash)
+    public string GetKeyName(uint keyHash)
     {
-        return _keyNames?.TryGetValue(keyHash, out var name) == true ? name : null;
+        if (KeepKeyNames && _keyNames.TryGetValue(keyHash, out var name))
+            return name;
+        return null;
     }
 
     /// <summary>
@@ -167,7 +176,7 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// <param name="name">The original key name.</param>
     public void SetKeyName(uint keyHash, string name)
     {
-        if (_keyNames != null)
+        if (KeepKeyNames)
             _keyNames[keyHash] = name;
     }
 
@@ -192,7 +201,8 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     /// <returns>True if the entry was removed, false if it didn't exist.</returns>
     public bool Remove(uint keyHash)
     {
-        _keyNames?.Remove(keyHash);
+        if (KeepKeyNames)
+            _keyNames.Remove(keyHash);
         return _entries.Remove(keyHash);
     }
 
@@ -209,7 +219,8 @@ public class GxtTable : IEnumerable<KeyValuePair<uint, string>>
     public void Clear()
     {
         _entries.Clear();
-        _keyNames?.Clear();
+        if (KeepKeyNames)
+            _keyNames.Clear();
     }
 
     public IEnumerator<KeyValuePair<uint, string>> GetEnumerator() => _entries.GetEnumerator();

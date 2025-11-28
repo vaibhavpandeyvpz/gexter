@@ -131,7 +131,7 @@ public class GxtLoader : IDisposable
     /// <param name="stream">The input stream.</param>
     /// <param name="encoding">Optional text encoding override.</param>
     /// <param name="leaveOpen">Whether to leave the stream open when disposing.</param>
-    public GxtLoader(Stream stream, Encoding? encoding = null, bool leaveOpen = false)
+    public GxtLoader(Stream stream, Encoding encoding = null, bool leaveOpen = false)
     {
         _reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen);
         _ownsStream = !leaveOpen;
@@ -144,7 +144,7 @@ public class GxtLoader : IDisposable
     /// </summary>
     /// <param name="filePath">The path to the GXT file.</param>
     /// <param name="encoding">Optional text encoding override.</param>
-    public GxtLoader(string filePath, Encoding? encoding = null)
+    public GxtLoader(string filePath, Encoding encoding = null)
         : this(File.OpenRead(filePath), encoding, false)
     {
     }
@@ -555,7 +555,7 @@ public class GxtLoader : IDisposable
     /// <param name="encoding">Optional text encoding override.</param>
     /// <param name="keepKeyNames">Whether to preserve original key names.</param>
     /// <returns>A GxtFile containing all tables.</returns>
-    public static GxtFile Load(string filePath, Encoding? encoding = null, bool keepKeyNames = true)
+    public static GxtFile Load(string filePath, Encoding encoding = null, bool keepKeyNames = true)
     {
         using var loader = new GxtLoader(filePath, encoding);
         loader.KeepKeyNames = keepKeyNames;
@@ -569,7 +569,7 @@ public class GxtLoader : IDisposable
     /// <param name="encoding">Optional text encoding override.</param>
     /// <param name="keepKeyNames">Whether to preserve original key names.</param>
     /// <returns>A GxtFile containing all tables.</returns>
-    public static GxtFile Load(Stream stream, Encoding? encoding = null, bool keepKeyNames = true)
+    public static GxtFile Load(Stream stream, Encoding encoding = null, bool keepKeyNames = true)
     {
         using var loader = new GxtLoader(stream, encoding, true);
         loader.KeepKeyNames = keepKeyNames;
