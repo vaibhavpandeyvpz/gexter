@@ -194,7 +194,7 @@ public partial class MainViewModel : ObservableObject
         GameColor = System.Windows.Media.Brushes.Gray;
         WindowTitle = "Gexter by VPZ";
         StatusMessage = "Ready";
-        
+
         // Reset search and filter boxes
         SearchText = string.Empty;
         TableSearchText = string.Empty;

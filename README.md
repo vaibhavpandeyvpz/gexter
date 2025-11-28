@@ -33,9 +33,10 @@
 - **Multi-lingual Support** - Proper encoding handling for UTF-16LE (III/VC) and Windows-1252 (SA/IV)
 
 ### Library
-- **Cross-Platform** - Supports .NET Framework 4.5.2+, .NET Standard 2.0, .NET Core 3.1+, and .NET 5.0-10.0
+- **Cross-Platform** - Supports .NET Framework 4.5.2+, .NET Standard 2.0, .NET Core 3.1+, and .NET 5.0, 7.0-10.0
 - **Type-Safe API** - Clean, intuitive API for reading and manipulating GXT files
-- **Memory Efficient** - Stream-based reading for large files
+- **Read & Write Support** - Full support for reading and writing GXT files in all supported formats
+- **Memory Efficient** - Stream-based reading and writing for large files
 - **Key Name Preservation** - Maintains original key names for VC/III formats
 - **Comprehensive Error Handling** - Detailed exceptions for debugging
 
@@ -106,8 +107,7 @@ Install-Package Gexter
 using Gexter;
 
 // Load a GXT file
-using var loader = GxtLoader.FromFile("american.gxt");
-var gxtFile = loader.Load();
+var gxtFile = GxtLoader.Load("american.gxt");
 
 // Access tables
 var mainTable = gxtFile["MAIN"];
@@ -131,6 +131,9 @@ if (mainTable != null)
 
 // Search across all tables
 var foundValue = gxtFile.FindValue("SOME_KEY");
+
+// Save the modified file
+gxtFile.Save("modified.gxt");
 ```
 
 ## 📚 Library
@@ -138,7 +141,8 @@ var foundValue = gxtFile.FindValue("SOME_KEY");
 ### Key Classes
 
 - **`GxtLoader`** - Main class for loading GXT files from streams or files
-- **`GxtFile`** - Container for all tables in a GXT file
+- **`GxtFile`** - Container for all tables in a GXT file with save functionality
+- **`GxtWriter`** - Class for writing GXT files to streams or files
 - **`GxtTable`** - Represents a single table with key-value pairs
 - **`GxtVersion`** - Enum for GXT format versions
 - **`Crc32`** - Utility for computing CRC32 hashes
@@ -158,7 +162,7 @@ foreach (var table in gxtFile)
 }
 ```
 
-### Example: Creating a New GXT File
+### Example: Creating and Saving a New GXT File
 
 ```csharp
 var tables = new List<GxtTable>
@@ -170,6 +174,31 @@ tables[0].SetValue("HELLO", "Hello, World!");
 tables[0].SetValue("GOODBYE", "Goodbye!");
 
 var gxtFile = new GxtFile(GxtVersion.ViceCityIII, tables);
+
+// Save to file
+gxtFile.Save("output.gxt");
+
+// Or save to stream
+using var stream = File.Create("output.gxt");
+gxtFile.Save(stream);
+```
+
+### Example: Modifying and Saving an Existing GXT File
+
+```csharp
+// Load a GXT file
+var gxtFile = GxtLoader.Load("american.gxt");
+
+// Modify entries
+var mainTable = gxtFile["MAIN"];
+if (mainTable != null)
+{
+    mainTable.SetValue("NEW_KEY", "New value");
+    mainTable.SetValue(0x89BD20D0, "Updated value");
+}
+
+// Save the modified file
+gxtFile.Save("modified.gxt");
 ```
 
 ## 🛠️ Development
@@ -209,6 +238,8 @@ gexter/
 The project includes comprehensive unit tests covering:
 - CRC32 hash computation
 - GXT file loading for all supported formats
+- GXT file writing for all supported formats
+- Round-trip testing (load, save, reload) to verify data integrity
 - Encoding handling (UTF-16LE and Windows-1252)
 - Formatting code preservation
 - Error handling
