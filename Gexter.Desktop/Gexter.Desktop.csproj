@@ -10,10 +10,6 @@
     <Description>GXT File Viewer and Editor for GTA Games</Description>
     <Version>1.0.0</Version>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishSingleFile>true</PublishSingleFile>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
