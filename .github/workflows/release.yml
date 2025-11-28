@@ -22,14 +22,19 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     
-    - name: Build library
-      run: dotnet build Gexter/Gexter.csproj --configuration Release
-    
     - name: Pack library
-      run: dotnet pack Gexter/Gexter.csproj --configuration Release --no-build --output ./nupkg
+      run: dotnet pack Gexter/Gexter.csproj --configuration Release --output ./nupkg
     
     - name: Publish to NuGet
-      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      shell: pwsh
+      run: |
+        $nupkgFile = Get-ChildItem -Path ./nupkg -Filter *.nupkg | Select-Object -First 1
+        if ($nupkgFile) {
+          dotnet nuget push $nupkgFile.FullName --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        } else {
+          Write-Error "No .nupkg file found in ./nupkg directory"
+          exit 1
+        }
       continue-on-error: true
     
   build-desktop:

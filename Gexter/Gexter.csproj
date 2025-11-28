@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/vaibhavpandeyvpz/gexter</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>gta;gxt;localization;game-text</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +26,10 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net481'">
     <Reference Include="System.Text.Encoding" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
