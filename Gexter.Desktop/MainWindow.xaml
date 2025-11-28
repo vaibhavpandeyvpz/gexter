@@ -1,0 +1,501 @@
+﻿<Window x:Class="Gexter.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Gexter.Desktop.ViewModels"
+        xmlns:conv="clr-namespace:Gexter.Desktop.Converters"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}"
+        Height="480" Width="720"
+        MinHeight="480" MinWidth="720"
+        WindowStartupLocation="CenterScreen"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragOver="Window_DragOver"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip"
+        Background="Transparent">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <conv:NullToVisibilityConverter x:Key="NullToVisibility"/>
+        <conv:StringNotEmptyConverter x:Key="StringNotEmpty"/>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFileCommand}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFileCommand}"/>
+        <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding CloseFileCommand}"/>
+        <KeyBinding Key="F" Modifiers="Ctrl" Command="{Binding ClearSearchCommand}"/>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding AddEntryCommand}"/>
+        <KeyBinding Key="Delete" Command="{Binding DeleteEntryCommand}"/>
+        <KeyBinding Key="D" Modifiers="Ctrl" Command="{Binding DuplicateEntryCommand}"/>
+        <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
+        <KeyBinding Key="F2" Command="{Binding RenameEntryCommand}"/>
+    </Window.InputBindings>
+
+    <Border Background="{StaticResource PrimaryBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Title Bar -->
+            <Border Grid.Row="0" Background="{StaticResource SecondaryBrush}" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Icon and Title -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="8,0,0,0">
+                        <Image Source="/icon.ico" Width="16" Height="16" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="{Binding WindowTitle}" Foreground="{StaticResource TextPrimaryBrush}" 
+                                   VerticalAlignment="Center" Margin="8,0,0,0" FontSize="12"/>
+                    </StackPanel>
+
+                    <!-- Window Buttons -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Style="{StaticResource TitleBarButton}" Click="MinimizeButton_Click">
+                            <fa:ImageAwesome Icon="WindowMinimize" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
+                        </Button>
+                        <Button Style="{StaticResource TitleBarButton}" Click="MaximizeButton_Click">
+                            <fa:ImageAwesome x:Name="MaximizeIcon" Icon="WindowMaximize" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
+                        </Button>
+                        <Button Style="{StaticResource TitleBarCloseButton}" Click="CloseButton_Click">
+                            <fa:ImageAwesome Icon="Times" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Menu Bar -->
+            <Menu Grid.Row="1" Background="{StaticResource SecondaryBrush}">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="FolderOpen" Foreground="{StaticResource AccentBrush}" Width="14" Height="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Save" Command="{Binding SaveFileCommand}" InputGestureText="Ctrl+S" IsEnabled="{Binding IsFileLoaded}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Save" Foreground="{StaticResource AccentBrush}" Width="14" Height="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Save As..." Command="{Binding SaveFileAsCommand}" IsEnabled="{Binding IsFileLoaded}"/>
+                    <Separator/>
+                    <MenuItem Header="Close" Command="{Binding CloseFileCommand}" InputGestureText="Ctrl+W" IsEnabled="{Binding IsFileLoaded}"/>
+                    <Separator/>
+                    <MenuItem Header="Exit" Click="ExitMenuItem_Click"/>
+                </MenuItem>
+                <MenuItem Header="Edit" IsEnabled="{Binding IsFileLoaded}">
+                    <MenuItem Header="Add Entry" Command="{Binding AddEntryCommand}" InputGestureText="Ctrl+N">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Plus" Foreground="{StaticResource SuccessBrush}" Width="14" Height="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Rename Entry" Command="{Binding RenameEntryCommand}" InputGestureText="F2"/>
+                    <MenuItem Header="Duplicate Entry" Command="{Binding DuplicateEntryCommand}" InputGestureText="Ctrl+D"/>
+                    <MenuItem Header="Delete Entry" Command="{Binding DeleteEntryCommand}" InputGestureText="Del">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="Trash" Foreground="{StaticResource ErrorBrush}" Width="14" Height="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Add Table" Command="{Binding AddTableCommand}"/>
+                    <MenuItem Header="Rename Table" Command="{Binding RenameTableCommand}"/>
+                    <MenuItem Header="Remove Table" Command="{Binding RemoveTableCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Copy Key" Command="{Binding CopyKeyToClipboardCommand}"/>
+                    <MenuItem Header="Copy Value" Command="{Binding CopyValueToClipboardCommand}"/>
+                    <MenuItem Header="Copy Hash" Command="{Binding CopyHashToClipboardCommand}"/>
+                </MenuItem>
+                <MenuItem Header="Export" IsEnabled="{Binding IsFileLoaded}">
+                    <MenuItem Header="Export to CSV..." Command="{Binding ExportToCsvCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="FileExcelOutline" Foreground="{StaticResource SuccessBrush}" Width="14" Height="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Export to JSON..." Command="{Binding ExportToJsonCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="FileCodeOutline" Foreground="{StaticResource WarningBrush}" Width="14" Height="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="Help">
+                    <MenuItem Header="About Gexter" Command="{Binding ShowAboutCommand}">
+                        <MenuItem.Icon>
+                            <fa:ImageAwesome Icon="InfoCircle" Foreground="{StaticResource InfoBrush}" Width="14" Height="14"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+
+            <!-- Toolbar - Compact -->
+            <Border Grid.Row="2" Background="{StaticResource SecondaryBrush}" Padding="4,2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding OpenFileCommand}" ToolTip="Open (Ctrl+O)">
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Icon="FolderOpen" Foreground="{StaticResource AccentBrush}" Width="12" Height="12"/>
+                            <TextBlock Text="Open" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource ToolbarButton}" Command="{Binding SaveFileCommand}" ToolTip="Save (Ctrl+S)" IsEnabled="{Binding IsFileLoaded}">
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Icon="Save" Foreground="{StaticResource AccentBrush}" Width="12" Height="12"/>
+                            <TextBlock Text="Save" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Main Content -->
+            <Grid Grid.Row="3">
+                <!-- Welcome screen -->
+                <Border Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}, ConverterParameter=Invert}">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="GEXTER" FontSize="42" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="GXT File Viewer &amp; Editor" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,32"/>
+                        
+                        <Button Style="{StaticResource AccentButton}" Command="{Binding OpenFileCommand}" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:ImageAwesome Icon="FolderOpen" Foreground="{StaticResource TextPrimaryBrush}" Width="14" Height="14" Margin="0,0,8,0"/>
+                                <TextBlock Text="Open GXT File"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <TextBlock Text="or drag and drop a .gxt file" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Editor - 2 Column, 2 Row Layout -->
+                <Grid Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="6*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="4*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Panel - Tables (Row 0, Col 0) -->
+                    <Grid Grid.Row="0" Grid.Column="0" Background="{StaticResource SecondaryBrush}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="8,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Tables" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding TotalTables, StringFormat={}{0}}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Table Search -->
+                        <Grid Grid.Row="1" Margin="4">
+                            <TextBox Style="{StaticResource FlatTextBox}" 
+                                     Text="{Binding TableSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="4,2"/>
+                            <TextBlock Text="Filter tables..." 
+                                       Foreground="{StaticResource TextSecondaryBrush}" 
+                                       FontSize="10" 
+                                       Margin="6,0,0,0" 
+                                       VerticalAlignment="Center" 
+                                       IsHitTestVisible="False"
+                                       Visibility="{Binding TableSearchText, Converter={StaticResource StringNotEmpty}, ConverterParameter=Invert}"/>
+                        </Grid>
+
+                        <!-- Table List -->
+                        <ListBox Grid.Row="2" ItemsSource="{Binding FilteredTables}" SelectedItem="{Binding SelectedTable}" Margin="4,0,4,4"
+                                 VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <!-- Modified indicator -->
+                                        <Ellipse Grid.Column="0" Width="6" Height="6" Fill="{StaticResource AccentBrush}" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                 Visibility="{Binding IsModified, Converter={StaticResource BoolToVisibility}}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="11" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding EntryCount}" Opacity="0.7" FontSize="10" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ContextMenu>
+                                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                    <MenuItem Header="Add Table" Command="{Binding AddTableCommand}"/>
+                                    <MenuItem Header="Rename Table" Command="{Binding RenameTableCommand}"/>
+                                    <MenuItem Header="Remove Table" Command="{Binding RemoveTableCommand}"/>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
+                        </ListBox>
+
+                        <!-- Table Actions -->
+                        <Border Grid.Row="3" Background="{StaticResource PrimaryBrush}" Padding="4">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource ToolbarButton}" Command="{Binding AddTableCommand}" ToolTip="Add Table" Padding="6,2">
+                                    <fa:ImageAwesome Icon="Plus" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                </Button>
+                                <Button Style="{StaticResource ToolbarButton}" Command="{Binding RenameTableCommand}" ToolTip="Rename Table" Padding="6,2">
+                                    <fa:ImageAwesome Icon="Pencil" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                </Button>
+                                <Button Style="{StaticResource ToolbarButton}" Command="{Binding RemoveTableCommand}" ToolTip="Remove Table" Padding="6,2">
+                                    <fa:ImageAwesome Icon="Trash" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Vertical Splitter -->
+                    <GridSplitter Grid.Row="0" Grid.Column="1" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="{StaticResource BorderBrush}"/>
+
+                    <!-- Right Panel - Entries Key & Hash only (Row 0, Col 2) -->
+                    <Grid Grid.Row="0" Grid.Column="2" Background="{StaticResource SecondaryBrush}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="8,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Entries" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text=" - " Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"
+                                               Visibility="{Binding SelectedTable, Converter={StaticResource NullToVisibility}}"/>
+                                    <TextBlock Text="{Binding SelectedTable.Name}" Foreground="{StaticResource AccentBrush}" FontWeight="Medium" VerticalAlignment="Center"
+                                               Visibility="{Binding SelectedTable, Converter={StaticResource NullToVisibility}}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding FilteredEntries.Count, StringFormat={}{0} entries}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Entry Search -->
+                        <Grid Grid.Row="1" Margin="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBox x:Name="SearchBox" Grid.Column="0"
+                                     Style="{StaticResource FlatTextBox}"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="4,2"/>
+                            
+                            <TextBlock Grid.Column="0" Text="Search entries..." 
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,0,0" FontSize="11"
+                                       IsHitTestVisible="False"
+                                       Visibility="{Binding SearchText, Converter={StaticResource StringNotEmpty}, ConverterParameter=Invert}"/>
+                            
+                            <Button Grid.Column="1" Style="{StaticResource ToolbarButton}" 
+                                    Command="{Binding ClearSearchCommand}"
+                                    Padding="4,2" Margin="2,0,0,0"
+                                    Visibility="{Binding SearchText, Converter={StaticResource StringNotEmpty}}">
+                                <fa:ImageAwesome Icon="Times" Foreground="{StaticResource TextSecondaryBrush}" Width="8" Height="8"/>
+                            </Button>
+                            
+                            <CheckBox Grid.Column="1" Content="Case" IsChecked="{Binding CaseSensitive}" 
+                                      VerticalAlignment="Center" Margin="8,0,0,0"
+                                      Visibility="{Binding SearchText, Converter={StaticResource StringNotEmpty}}"/>
+                        </Grid>
+
+                        <!-- Entries Grid - Only Key and Hash -->
+                        <DataGrid Grid.Row="2" ItemsSource="{Binding FilteredEntries}" SelectedItem="{Binding SelectedEntry}"
+                                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                                  EnableRowVirtualization="True" ScrollViewer.CanContentScroll="True">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                    <MenuItem Header="Add Entry" Command="{Binding AddEntryCommand}"/>
+                                    <MenuItem Header="Rename Entry" Command="{Binding RenameEntryCommand}"/>
+                                    <MenuItem Header="Duplicate Entry" Command="{Binding DuplicateEntryCommand}"/>
+                                    <MenuItem Header="Delete Entry" Command="{Binding DeleteEntryCommand}"/>
+                                    <Separator/>
+                                    <MenuItem Header="Copy Key" Command="{Binding CopyKeyToClipboardCommand}"/>
+                                    <MenuItem Header="Copy Value" Command="{Binding CopyValueToClipboardCommand}"/>
+                                    <MenuItem Header="Copy Hash" Command="{Binding CopyHashToClipboardCommand}"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Key" Width="*" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="6" Height="6" Fill="{StaticResource AccentBrush}" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                         Visibility="{Binding IsModified, Converter={StaticResource BoolToVisibility}}"/>
+                                                <TextBlock Text="{Binding DisplayKey}" FontFamily="{StaticResource MonoFont}" FontSize="11" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Hash" Binding="{Binding KeyHashHex}" Width="100" IsReadOnly="True">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontFamily" Value="{StaticResource MonoFont}"/>
+                                            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                            <Setter Property="FontSize" Value="10"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Entry Actions -->
+                        <Border Grid.Row="3" Background="{StaticResource PrimaryBrush}" Padding="4">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource ToolbarButton}" Command="{Binding AddEntryCommand}" ToolTip="Add Entry" Padding="6,2">
+                                    <fa:ImageAwesome Icon="Plus" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                </Button>
+                                <Button Style="{StaticResource ToolbarButton}" Command="{Binding RenameEntryCommand}" ToolTip="Rename Entry (F2)" Padding="6,2">
+                                    <fa:ImageAwesome Icon="Pencil" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                </Button>
+                                <Button Style="{StaticResource ToolbarButton}" Command="{Binding DuplicateEntryCommand}" ToolTip="Duplicate Entry" Padding="6,2">
+                                    <fa:ImageAwesome Icon="Clone" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                </Button>
+                                <Button Style="{StaticResource ToolbarButton}" Command="{Binding DeleteEntryCommand}" ToolTip="Delete Entry" Padding="6,2">
+                                    <fa:ImageAwesome Icon="Trash" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- Horizontal Splitter -->
+                    <GridSplitter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Height="4" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="{StaticResource BorderBrush}"/>
+
+                    <!-- Bottom Panel - Value Editor (Row 2, spans both columns) -->
+                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Background="{StaticResource SecondaryBrush}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="8,6">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Value" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text=" - " Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"
+                                               Visibility="{Binding SelectedEntry, Converter={StaticResource NullToVisibility}}"/>
+                                    <TextBlock Text="{Binding SelectedEntry.DisplayKey}" FontFamily="{StaticResource MonoFont}" FontSize="11"
+                                               Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center"
+                                               Visibility="{Binding SelectedEntry, Converter={StaticResource NullToVisibility}}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding SelectedEntry.Value.Length, StringFormat={}{0} chars, FallbackValue=0 chars}" 
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Value TextBox -->
+                        <TextBox Grid.Row="1" 
+                                 Style="{StaticResource FlatTextBox}"
+                                 Text="{Binding SelectedEntry.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Disabled"
+                                 FontSize="12"
+                                 Padding="8"
+                                 IsEnabled="{Binding CanEditEntry}"
+                                 Margin="4"/>
+                        
+                        <!-- No entry selected message -->
+                        <TextBlock Grid.Row="1" Text="Select an entry to edit its value"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="12"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding SelectedEntry, Converter={StaticResource NullToVisibility}, ConverterParameter=Invert}"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!-- Status Bar -->
+            <StatusBar Grid.Row="4" Padding="6,3">
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+    <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                
+                <StatusBarItem Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <fa:ImageAwesome Icon="InfoCircle" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="{Binding StatusMessage}" FontSize="11" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StatusBarItem>
+                
+                <StatusBarItem Grid.Column="1" Margin="12,0,0,0" Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel Orientation="Horizontal">
+                        <fa:ImageAwesome Icon="Gamepad" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="{Binding GameName}" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center"
+                                   Foreground="{Binding GameColor}"/>
+                    </StackPanel>
+                </StatusBarItem>
+                
+                <StatusBarItem Grid.Column="2" Margin="12,0,0,0" Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel Orientation="Horizontal">
+                        <fa:ImageAwesome Icon="Folder" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock FontSize="10" VerticalAlignment="Center">
+                            <Run Text="{Binding TotalTables}" FontWeight="SemiBold"/>
+                            <Run Text="tables" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StatusBarItem>
+                
+                <StatusBarItem Grid.Column="3" Margin="12,0,0,0" Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel Orientation="Horizontal">
+                        <fa:ImageAwesome Icon="List" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock FontSize="10" VerticalAlignment="Center">
+                            <Run Text="{Binding TotalEntries}" FontWeight="SemiBold"/>
+                            <Run Text="entries" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StatusBarItem>
+            </StatusBar>
+    </Grid>
+    </Border>
+</Window>

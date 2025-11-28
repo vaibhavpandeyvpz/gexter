@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  publish-nuget:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build library
+      run: dotnet build Gexter/Gexter.csproj --configuration Release
+    
+    - name: Pack library
+      run: dotnet pack Gexter/Gexter.csproj --configuration Release --no-build --output ./nupkg
+    
+    - name: Publish to NuGet
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      continue-on-error: true
+    
+  build-desktop:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build desktop app
+      run: dotnet build Gexter.Desktop/Gexter.Desktop.csproj --configuration Release
+    
+    - name: Publish desktop app
+      run: dotnet publish Gexter.Desktop/Gexter.Desktop.csproj --configuration Release --runtime win-x64 --self-contained true --output ./publish
+    
+    - name: Create zip archive
+      shell: powershell
+      run: |
+        $version = "${{ github.event.release.tag_name }}"
+        if ($version -match '^v') { $version = $version.Substring(1) }
+        $zipName = "Gexter-$version-win-x64.zip"
+        Compress-Archive -Path ./publish/* -DestinationPath "./$zipName" -Force
+        echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
+    
+    - name: Upload release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./${{ env.ZIP_NAME }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
