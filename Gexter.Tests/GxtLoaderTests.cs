@@ -437,7 +437,7 @@ public class GxtLoaderTests
         // Note: This test is ignored because hash mismatches may occur due to different
         // byte layouts (e.g., entry ordering) while data integrity is preserved.
         // The RoundTrip_*_ShouldPreserveAllData tests verify that all data is preserved correctly.
-        
+
         var testFiles = new[]
         {
             ("gta3.gxt", "GTA III"),

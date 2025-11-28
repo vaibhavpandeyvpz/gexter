@@ -74,7 +74,7 @@ public class GxtLoader : IDisposable
 #endif
             _encodingRegistered = true;
         }
-        
+
         // Get Windows-1252 encoding
         // On .NET Framework, Windows-1252 is built-in and should work without issues
         // On .NET Core/5+, we need the CodePages provider registered above

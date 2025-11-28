@@ -124,7 +124,7 @@ public partial class MainViewModel : ObservableObject
         {
             SyncModelsToFile();
             _loadedFile.Save(_currentFilePath);
-            
+
             // Reset modified state after successful save
             foreach (var table in Tables)
             {
@@ -159,7 +159,7 @@ public partial class MainViewModel : ObservableObject
                 SyncModelsToFile();
                 _loadedFile.Save(dialog.FileName);
                 _currentFilePath = dialog.FileName;
-                
+
                 // Reset modified state after successful save
                 foreach (var table in Tables)
                 {
@@ -659,9 +659,9 @@ public partial class MainViewModel : ObservableObject
         {
             // Get encoding from original table or use default
             var originalTable = _loadedFile[tableModel.Name];
-            var encoding = originalTable?.InternalEncoding ?? 
-                (FileVersion == GxtVersion.ViceCityIII 
-                    ? System.Text.Encoding.Unicode 
+            var encoding = originalTable?.InternalEncoding ??
+                (FileVersion == GxtVersion.ViceCityIII
+                    ? System.Text.Encoding.Unicode
                     : System.Text.Encoding.GetEncoding(1252));
 
             // Create new table with same name and encoding
