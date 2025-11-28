@@ -1,6 +1,6 @@
-# Gexter
-
 <div align="center">
+
+# Gexter
 
 **A powerful tool for viewing and editing GXT (game text) files from Grand Theft Auto games**
 
