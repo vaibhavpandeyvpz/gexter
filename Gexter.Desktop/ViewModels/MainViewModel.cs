@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 
 namespace Gexter.Desktop.ViewModels;
@@ -620,42 +621,24 @@ public partial class MainViewModel : ObservableObject
 
     private void ExportTablesToJson(string filePath)
     {
-        using var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8);
-        writer.WriteLine("{");
-        writer.WriteLine($"  \"version\": \"{FileVersion}\",");
-        writer.WriteLine("  \"tables\": [");
-
-        for (int t = 0; t < Tables.Count; t++)
+        var data = new
         {
-            var table = Tables[t];
-            writer.WriteLine("    {");
-            writer.WriteLine($"      \"name\": \"{EscapeJson(table.Name)}\",");
-            writer.WriteLine("      \"entries\": [");
-
-            for (int e = 0; e < table.Entries.Count; e++)
+            version = FileVersion.ToString(),
+            tables = Tables.Select(t => new
             {
-                var entry = table.Entries[e];
-                var comma = e < table.Entries.Count - 1 ? "," : "";
-                writer.WriteLine($"        {{ \"hash\": \"{entry.KeyHashHex}\", \"key\": \"{EscapeJson(entry.KeyName)}\", \"value\": \"{EscapeJson(entry.Value)}\" }}{comma}");
-            }
+                name = t.Name,
+                entries = t.Entries.Select(e => new
+                {
+                    hash = e.KeyHashHex,
+                    key = e.KeyName,
+                    value = e.Value
+                })
+            })
+        };
 
-            writer.WriteLine("      ]");
-            var tableComma = t < Tables.Count - 1 ? "," : "";
-            writer.WriteLine($"    }}{tableComma}");
-        }
-
-        writer.WriteLine("  ]");
-        writer.WriteLine("}");
-    }
-
-    private static string EscapeJson(string text)
-    {
-        return text
-            .Replace("\\", "\\\\")
-            .Replace("\"", "\\\"")
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r")
-            .Replace("\t", "\\t");
+        // ponytail: stream directly via Utf8JsonWriter if memory becomes an issue on massive GXT tables
+        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(filePath, json, Encoding.UTF8);
     }
 
     private void SyncModelsToFile()
