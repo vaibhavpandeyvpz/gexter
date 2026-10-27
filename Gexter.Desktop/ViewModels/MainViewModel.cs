@@ -14,6 +14,25 @@ public partial class MainViewModel : ObservableObject
 {
     private GxtFile? _loadedFile;
     private string? _currentFilePath;
+    private bool _isContentModified;
+
+    public bool HasUnsavedChanges => IsFileLoaded && (_isContentModified || Tables.Any(t => t.IsModified || t.Entries.Any(e => e.IsModified || e.IsNew)));
+
+    public bool ConfirmDiscardChanges()
+    {
+        if (!HasUnsavedChanges) return true;
+
+        var result = MessageDialog.Show(
+            "You have unsaved changes. Do you want to save before continuing?",
+            "Unsaved Changes",
+            MessageDialogType.Question,
+            MessageDialogButtons.YesNoCancel);
+
+        if (result == MessageDialogResult.Yes)
+            return PerformSave();
+
+        return result == MessageDialogResult.No;
+    }
 
     [ObservableProperty]
     private string _windowTitle = "Gexter by VPZ";
@@ -104,6 +123,8 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenFile()
     {
+        if (!ConfirmDiscardChanges()) return;
+
         var dialog = new OpenFileDialog
         {
             Filter = "GXT Files (*.gxt)|*.gxt|All Files (*.*)|*.*",
@@ -117,15 +138,22 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SaveFile()
+    private void SaveFile() => PerformSave();
+
+    [RelayCommand]
+    private void SaveFileAs() => PerformSaveAs();
+
+    public bool PerformSave()
     {
-        if (!IsFileLoaded || _loadedFile == null || string.IsNullOrEmpty(_currentFilePath)) return;
+        if (!IsFileLoaded || _loadedFile == null) return false;
+        if (string.IsNullOrEmpty(_currentFilePath)) return PerformSaveAs();
 
         try
         {
             SyncModelsToFile();
             _loadedFile.Save(_currentFilePath);
 
+            _isContentModified = false;
             // Reset modified state after successful save
             foreach (var table in Tables)
             {
@@ -133,18 +161,19 @@ public partial class MainViewModel : ObservableObject
             }
 
             StatusMessage = $"Saved to {Path.GetFileName(_currentFilePath)}";
+            return true;
         }
         catch (Exception ex)
         {
             MessageDialog.Show($"Error saving file: {ex.Message}", "Save Error",
                 MessageDialogType.Error, MessageDialogButtons.Ok);
+            return false;
         }
     }
 
-    [RelayCommand]
-    private void SaveFileAs()
+    public bool PerformSaveAs()
     {
-        if (!IsFileLoaded || _loadedFile == null) return;
+        if (!IsFileLoaded || _loadedFile == null) return false;
 
         var dialog = new SaveFileDialog
         {
@@ -161,6 +190,7 @@ public partial class MainViewModel : ObservableObject
                 _loadedFile.Save(dialog.FileName);
                 _currentFilePath = dialog.FileName;
 
+                _isContentModified = false;
                 // Reset modified state after successful save
                 foreach (var table in Tables)
                 {
@@ -169,23 +199,30 @@ public partial class MainViewModel : ObservableObject
 
                 WindowTitle = $"Gexter by VPZ - {Path.GetFileName(dialog.FileName)}";
                 StatusMessage = $"Saved to {Path.GetFileName(dialog.FileName)}";
+                return true;
             }
             catch (Exception ex)
             {
                 MessageDialog.Show($"Error saving file: {ex.Message}", "Save Error",
                     MessageDialogType.Error, MessageDialogButtons.Ok);
+                return false;
             }
         }
+
+        return false;
     }
 
     [RelayCommand]
     private void CloseFile()
     {
+        if (!ConfirmDiscardChanges()) return;
+
         Tables.Clear();
         FilteredTables.Clear();
         FilteredEntries.Clear();
         _loadedFile = null;
         _currentFilePath = null;
+        _isContentModified = false;
         IsFileLoaded = false;
         TotalTables = 0;
         TotalEntries = 0;
@@ -319,6 +356,7 @@ public partial class MainViewModel : ObservableObject
         {
             var name = SelectedTable.Name;
             Tables.Remove(SelectedTable);
+            _isContentModified = true;
             ApplyTableFilter();
             TotalTables = Tables.Count;
             StatusMessage = $"Removed table '{name}'";
@@ -489,6 +527,7 @@ public partial class MainViewModel : ObservableObject
             SearchText = string.Empty;
             TableSearchText = string.Empty;
             CaseSensitive = false;
+            _isContentModified = false;
 
             _loadedFile = GxtLoader.Load(filePath, keepKeyNames: true);
             _currentFilePath = filePath;

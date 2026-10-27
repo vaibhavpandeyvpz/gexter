@@ -21,6 +21,11 @@ public partial class MainWindow : Window
         }
 
         StateChanged += MainWindow_StateChanged;
+        Closing += (s, e) =>
+        {
+            if (!ViewModel.ConfirmDiscardChanges())
+                e.Cancel = true;
+        };
     }
 
     private void MainWindow_StateChanged(object? sender, EventArgs e)
@@ -78,7 +83,10 @@ public partial class MainWindow : Window
                 var file = files[0];
                 if (file.EndsWith(".gxt", StringComparison.OrdinalIgnoreCase))
                 {
-                    ViewModel.LoadFile(file);
+                    if (ViewModel.ConfirmDiscardChanges())
+                    {
+                        ViewModel.LoadFile(file);
+                    }
                 }
                 else
                 {
