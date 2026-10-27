@@ -1,4 +1,4 @@
-﻿using FontAwesome.WPF;
+﻿using FontAwesome.Sharp;
 using Gexter.Desktop.ViewModels;
 using System.Windows;
 using System.Windows.Input;
@@ -32,8 +32,8 @@ public partial class MainWindow : Window
     {
         // Update maximize/restore icon
         MaximizeIcon.Icon = WindowState == WindowState.Maximized
-            ? FontAwesomeIcon.WindowRestore
-            : FontAwesomeIcon.WindowMaximize;
+            ? IconChar.WindowRestore
+            : IconChar.WindowMaximize;
     }
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

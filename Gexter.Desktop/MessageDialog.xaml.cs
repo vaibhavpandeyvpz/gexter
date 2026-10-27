@@ -1,4 +1,4 @@
-using FontAwesome.WPF;
+using FontAwesome.Sharp;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -53,19 +53,19 @@ public partial class MessageDialog : Window
         switch (type)
         {
             case MessageDialogType.Info:
-                dialog.IconImage.Icon = FontAwesomeIcon.InfoCircle;
+                dialog.IconImage.Icon = IconChar.InfoCircle;
                 dialog.IconImage.Foreground = (Brush)Application.Current.Resources["InfoBrush"];
                 break;
             case MessageDialogType.Warning:
-                dialog.IconImage.Icon = FontAwesomeIcon.ExclamationTriangle;
+                dialog.IconImage.Icon = IconChar.ExclamationTriangle;
                 dialog.IconImage.Foreground = (Brush)Application.Current.Resources["WarningBrush"];
                 break;
             case MessageDialogType.Error:
-                dialog.IconImage.Icon = FontAwesomeIcon.TimesCircle;
+                dialog.IconImage.Icon = IconChar.TimesCircle;
                 dialog.IconImage.Foreground = (Brush)Application.Current.Resources["ErrorBrush"];
                 break;
             case MessageDialogType.Question:
-                dialog.IconImage.Icon = FontAwesomeIcon.QuestionCircle;
+                dialog.IconImage.Icon = IconChar.QuestionCircle;
                 dialog.IconImage.Foreground = (Brush)Application.Current.Resources["InfoBrush"];
                 break;
         }
