@@ -539,6 +539,41 @@ public class GxtLoaderTests
         Assert.Throws<GxtException>(() => GxtLoader.Load(stream));
     }
 
+    [Test]
+    public void LoadSaIv_UnterminatedString_ShouldNotThrowOrHang()
+    {
+        using var ms = new MemoryStream();
+        using var writer = new BinaryWriter(ms, System.Text.Encoding.UTF8, true);
+
+        writer.Write(1);
+        writer.Write(System.Text.Encoding.ASCII.GetBytes("TABL"));
+        writer.Write(12);
+
+        byte[] nameBytes = new byte[8];
+        Array.Copy(System.Text.Encoding.ASCII.GetBytes("MAIN"), nameBytes, 4);
+        writer.Write(nameBytes);
+        int tableOffset = 4 + 4 + 4 + 12;
+        writer.Write(tableOffset);
+
+        writer.Write(System.Text.Encoding.ASCII.GetBytes("TKEY"));
+        writer.Write(8);
+        writer.Write(0);
+        writer.Write(0x12345678u);
+
+        writer.Write(System.Text.Encoding.ASCII.GetBytes("TDAT"));
+        writer.Write(4);
+        writer.Write(System.Text.Encoding.ASCII.GetBytes("TEST"));
+
+        writer.Flush();
+        ms.Position = 0;
+
+        var gxtFile = GxtLoader.Load(ms);
+        Assert.That(gxtFile.TableCount, Is.EqualTo(1));
+        var main = gxtFile["MAIN"];
+        Assert.That(main, Is.Not.Null);
+        Assert.That(main![0x12345678u], Is.EqualTo("TEST"));
+    }
+
     #endregion
 }
 
