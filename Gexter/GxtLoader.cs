@@ -353,7 +353,7 @@ public class GxtLoader : IDisposable
 
         // Skip TDAT marker and size
         _reader.ReadBytes(4); // "TDAT"
-        _reader.ReadInt32();  // TDAT size
+        int tdatSize = _reader.ReadInt32();  // TDAT size
         _currentPosition += 8;
 
         // Sort entries by offset to read strings in order
@@ -379,8 +379,9 @@ public class GxtLoader : IDisposable
             if (_currentPosition != stringPos)
                 SeekTo(stringPos);
 
+            int maxLen = Math.Max(0, tdatSize - entryOffset);
             // Read null-terminated string (8-bit encoding)
-            string text = ReadNullTerminatedString8();
+            string text = ReadNullTerminatedString8(maxLen);
             table.SetValue(keyHash, text);
         }
 
@@ -460,8 +461,13 @@ public class GxtLoader : IDisposable
                 maxLen = tdatSize - entryOffset;
 #endif
 
+            maxLen = Math.Max(0, maxLen);
+
             // Seek to string position
             long stringPos = tdatStart + entryOffset;
+            if (stringPos + maxLen > _reader.BaseStream.Length)
+                maxLen = (int)Math.Max(0, _reader.BaseStream.Length - stringPos);
+
             if (_currentPosition != stringPos)
                 SeekTo(stringPos);
 
@@ -476,15 +482,20 @@ public class GxtLoader : IDisposable
         return table;
     }
 
-    private string ReadNullTerminatedString8()
+    private string ReadNullTerminatedString8(int maxLength = int.MaxValue)
     {
+        if (maxLength <= 0)
+            return string.Empty;
+
         var bytes = new List<byte>();
-        byte b;
-        while ((b = _reader.ReadByte()) != 0)
+        while (bytes.Count < maxLength && _reader.BaseStream.Position < _reader.BaseStream.Length)
         {
+            byte b = _reader.ReadByte();
+            _currentPosition++;
+            if (b == 0)
+                break;
             bytes.Add(b);
         }
-        _currentPosition += bytes.Count + 1;
 
         if (bytes.Count == 0)
             return string.Empty;

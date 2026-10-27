@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Gexter.Desktop.ViewModels"
         xmlns:conv="clr-namespace:Gexter.Desktop.Converters"
-        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}"
         Height="480" Width="720"
@@ -70,13 +70,13 @@
                     <!-- Window Buttons -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                         <Button Style="{StaticResource TitleBarButton}" Click="MinimizeButton_Click">
-                            <fa:ImageAwesome Icon="WindowMinimize" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
+                            <fa:IconImage Icon="WindowMinimize" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
                         </Button>
                         <Button Style="{StaticResource TitleBarButton}" Click="MaximizeButton_Click">
-                            <fa:ImageAwesome x:Name="MaximizeIcon" Icon="WindowMaximize" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
+                            <fa:IconImage x:Name="MaximizeIcon" Icon="WindowMaximize" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
                         </Button>
                         <Button Style="{StaticResource TitleBarCloseButton}" Click="CloseButton_Click">
-                            <fa:ImageAwesome Icon="Times" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
+                            <fa:IconImage Icon="Times" Foreground="{StaticResource TextPrimaryBrush}" Width="12" Height="12"/>
                         </Button>
                     </StackPanel>
                 </Grid>
@@ -87,12 +87,12 @@
                 <MenuItem Header="File">
                     <MenuItem Header="Open..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="FolderOpen" Foreground="{StaticResource AccentBrush}" Width="14" Height="14"/>
+                            <fa:IconImage Icon="FolderOpen" Foreground="{StaticResource AccentBrush}" Width="14" Height="14"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Save" Command="{Binding SaveFileCommand}" InputGestureText="Ctrl+S" IsEnabled="{Binding IsFileLoaded}">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Save" Foreground="{StaticResource AccentBrush}" Width="14" Height="14"/>
+                            <fa:IconImage Icon="Save" Foreground="{StaticResource AccentBrush}" Width="14" Height="14"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Save As..." Command="{Binding SaveFileAsCommand}" IsEnabled="{Binding IsFileLoaded}"/>
@@ -104,14 +104,14 @@
                 <MenuItem Header="Edit" IsEnabled="{Binding IsFileLoaded}">
                     <MenuItem Header="Add Entry" Command="{Binding AddEntryCommand}" InputGestureText="Ctrl+N">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Plus" Foreground="{StaticResource SuccessBrush}" Width="14" Height="14"/>
+                            <fa:IconImage Icon="Plus" Foreground="{StaticResource SuccessBrush}" Width="14" Height="14"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Rename Entry" Command="{Binding RenameEntryCommand}" InputGestureText="F2"/>
                     <MenuItem Header="Duplicate Entry" Command="{Binding DuplicateEntryCommand}" InputGestureText="Ctrl+D"/>
                     <MenuItem Header="Delete Entry" Command="{Binding DeleteEntryCommand}" InputGestureText="Del">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="Trash" Foreground="{StaticResource ErrorBrush}" Width="14" Height="14"/>
+                            <fa:IconImage Icon="Trash" Foreground="{StaticResource ErrorBrush}" Width="14" Height="14"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator/>
@@ -126,19 +126,19 @@
                 <MenuItem Header="Export" IsEnabled="{Binding IsFileLoaded}">
                     <MenuItem Header="Export to CSV..." Command="{Binding ExportToCsvCommand}">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="FileExcelOutline" Foreground="{StaticResource SuccessBrush}" Width="14" Height="14"/>
+                            <fa:IconImage Icon="FileExcel" Foreground="{StaticResource SuccessBrush}" Width="14" Height="14"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Export to JSON..." Command="{Binding ExportToJsonCommand}">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="FileCodeOutline" Foreground="{StaticResource WarningBrush}" Width="14" Height="14"/>
+                            <fa:IconImage Icon="FileCode" Foreground="{StaticResource WarningBrush}" Width="14" Height="14"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="Help">
                     <MenuItem Header="About Gexter" Command="{Binding ShowAboutCommand}">
                         <MenuItem.Icon>
-                            <fa:ImageAwesome Icon="InfoCircle" Foreground="{StaticResource InfoBrush}" Width="14" Height="14"/>
+                            <fa:IconImage Icon="InfoCircle" Foreground="{StaticResource InfoBrush}" Width="14" Height="14"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -149,13 +149,13 @@
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource ToolbarButton}" Command="{Binding OpenFileCommand}" ToolTip="Open (Ctrl+O)">
                         <StackPanel Orientation="Horizontal">
-                            <fa:ImageAwesome Icon="FolderOpen" Foreground="{StaticResource AccentBrush}" Width="12" Height="12"/>
+                            <fa:IconImage Icon="FolderOpen" Foreground="{StaticResource AccentBrush}" Width="12" Height="12"/>
                             <TextBlock Text="Open" Margin="4,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <Button Style="{StaticResource ToolbarButton}" Command="{Binding SaveFileCommand}" ToolTip="Save (Ctrl+S)" IsEnabled="{Binding IsFileLoaded}">
                         <StackPanel Orientation="Horizontal">
-                            <fa:ImageAwesome Icon="Save" Foreground="{StaticResource AccentBrush}" Width="12" Height="12"/>
+                            <fa:IconImage Icon="Save" Foreground="{StaticResource AccentBrush}" Width="12" Height="12"/>
                             <TextBlock Text="Save" Margin="4,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -172,7 +172,7 @@
                         
                         <Button Style="{StaticResource AccentButton}" Command="{Binding OpenFileCommand}" HorizontalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
-                                <fa:ImageAwesome Icon="FolderOpen" Foreground="{StaticResource TextPrimaryBrush}" Width="14" Height="14" Margin="0,0,8,0"/>
+                                <fa:IconImage Icon="FolderOpen" Foreground="{StaticResource TextPrimaryBrush}" Width="14" Height="14" Margin="0,0,8,0"/>
                                 <TextBlock Text="Open GXT File"/>
                             </StackPanel>
                         </Button>
@@ -261,13 +261,13 @@
                         <Border Grid.Row="3" Background="{StaticResource PrimaryBrush}" Padding="4">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource ToolbarButton}" Command="{Binding AddTableCommand}" ToolTip="Add Table" Padding="6,2">
-                                    <fa:ImageAwesome Icon="Plus" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                    <fa:IconImage Icon="Plus" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
                                 </Button>
                                 <Button Style="{StaticResource ToolbarButton}" Command="{Binding RenameTableCommand}" ToolTip="Rename Table" Padding="6,2">
-                                    <fa:ImageAwesome Icon="Pencil" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                    <fa:IconImage Icon="Pencil" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
                                 </Button>
                                 <Button Style="{StaticResource ToolbarButton}" Command="{Binding RemoveTableCommand}" ToolTip="Remove Table" Padding="6,2">
-                                    <fa:ImageAwesome Icon="Trash" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                    <fa:IconImage Icon="Trash" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
                                 </Button>
                             </StackPanel>
                         </Border>
@@ -325,7 +325,7 @@
                                     Command="{Binding ClearSearchCommand}"
                                     Padding="4,2" Margin="2,0,0,0"
                                     Visibility="{Binding SearchText, Converter={StaticResource StringNotEmpty}}">
-                                <fa:ImageAwesome Icon="Times" Foreground="{StaticResource TextSecondaryBrush}" Width="8" Height="8"/>
+                                <fa:IconImage Icon="Times" Foreground="{StaticResource TextSecondaryBrush}" Width="8" Height="8"/>
                             </Button>
                             
                             <CheckBox Grid.Column="1" Content="Case" IsChecked="{Binding CaseSensitive}" 
@@ -377,16 +377,16 @@
                         <Border Grid.Row="3" Background="{StaticResource PrimaryBrush}" Padding="4">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Style="{StaticResource ToolbarButton}" Command="{Binding AddEntryCommand}" ToolTip="Add Entry" Padding="6,2">
-                                    <fa:ImageAwesome Icon="Plus" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                    <fa:IconImage Icon="Plus" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
                                 </Button>
                                 <Button Style="{StaticResource ToolbarButton}" Command="{Binding RenameEntryCommand}" ToolTip="Rename Entry (F2)" Padding="6,2">
-                                    <fa:ImageAwesome Icon="Pencil" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                    <fa:IconImage Icon="Pencil" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
                                 </Button>
                                 <Button Style="{StaticResource ToolbarButton}" Command="{Binding DuplicateEntryCommand}" ToolTip="Duplicate Entry" Padding="6,2">
-                                    <fa:ImageAwesome Icon="Clone" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                    <fa:IconImage Icon="Clone" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
                                 </Button>
                                 <Button Style="{StaticResource ToolbarButton}" Command="{Binding DeleteEntryCommand}" ToolTip="Delete Entry" Padding="6,2">
-                                    <fa:ImageAwesome Icon="Trash" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
+                                    <fa:IconImage Icon="Trash" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10"/>
                                 </Button>
                             </StackPanel>
                         </Border>
@@ -463,14 +463,14 @@
                 
                 <StatusBarItem Grid.Column="0">
                     <StackPanel Orientation="Horizontal">
-                        <fa:ImageAwesome Icon="InfoCircle" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <fa:IconImage Icon="InfoCircle" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBlock Text="{Binding StatusMessage}" FontSize="11" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StatusBarItem>
                 
                 <StatusBarItem Grid.Column="1" Margin="12,0,0,0" Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel Orientation="Horizontal">
-                        <fa:ImageAwesome Icon="Gamepad" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <fa:IconImage Icon="Gamepad" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBlock Text="{Binding GameName}" FontWeight="SemiBold" FontSize="10" VerticalAlignment="Center"
                                    Foreground="{Binding GameColor}"/>
                     </StackPanel>
@@ -478,7 +478,7 @@
                 
                 <StatusBarItem Grid.Column="2" Margin="12,0,0,0" Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel Orientation="Horizontal">
-                        <fa:ImageAwesome Icon="Folder" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <fa:IconImage Icon="Folder" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBlock FontSize="10" VerticalAlignment="Center">
                             <Run Text="{Binding TotalTables}" FontWeight="SemiBold"/>
                             <Run Text="tables" Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -488,7 +488,7 @@
                 
                 <StatusBarItem Grid.Column="3" Margin="12,0,0,0" Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel Orientation="Horizontal">
-                        <fa:ImageAwesome Icon="List" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <fa:IconImage Icon="List" Foreground="{StaticResource TextSecondaryBrush}" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBlock FontSize="10" VerticalAlignment="Center">
                             <Run Text="{Binding TotalEntries}" FontWeight="SemiBold"/>
                             <Run Text="entries" Foreground="{StaticResource TextSecondaryBrush}"/>

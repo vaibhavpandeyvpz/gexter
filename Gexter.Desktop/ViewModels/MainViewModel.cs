@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 
 namespace Gexter.Desktop.ViewModels;
@@ -13,6 +14,25 @@ public partial class MainViewModel : ObservableObject
 {
     private GxtFile? _loadedFile;
     private string? _currentFilePath;
+    private bool _isContentModified;
+
+    public bool HasUnsavedChanges => IsFileLoaded && (_isContentModified || Tables.Any(t => t.IsModified || t.Entries.Any(e => e.IsModified || e.IsNew)));
+
+    public bool ConfirmDiscardChanges()
+    {
+        if (!HasUnsavedChanges) return true;
+
+        var result = MessageDialog.Show(
+            "You have unsaved changes. Do you want to save before continuing?",
+            "Unsaved Changes",
+            MessageDialogType.Question,
+            MessageDialogButtons.YesNoCancel);
+
+        if (result == MessageDialogResult.Yes)
+            return PerformSave();
+
+        return result == MessageDialogResult.No;
+    }
 
     [ObservableProperty]
     private string _windowTitle = "Gexter by VPZ";
@@ -103,6 +123,8 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenFile()
     {
+        if (!ConfirmDiscardChanges()) return;
+
         var dialog = new OpenFileDialog
         {
             Filter = "GXT Files (*.gxt)|*.gxt|All Files (*.*)|*.*",
@@ -116,15 +138,22 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SaveFile()
+    private void SaveFile() => PerformSave();
+
+    [RelayCommand]
+    private void SaveFileAs() => PerformSaveAs();
+
+    public bool PerformSave()
     {
-        if (!IsFileLoaded || _loadedFile == null || string.IsNullOrEmpty(_currentFilePath)) return;
+        if (!IsFileLoaded || _loadedFile == null) return false;
+        if (string.IsNullOrEmpty(_currentFilePath)) return PerformSaveAs();
 
         try
         {
             SyncModelsToFile();
             _loadedFile.Save(_currentFilePath);
 
+            _isContentModified = false;
             // Reset modified state after successful save
             foreach (var table in Tables)
             {
@@ -132,18 +161,19 @@ public partial class MainViewModel : ObservableObject
             }
 
             StatusMessage = $"Saved to {Path.GetFileName(_currentFilePath)}";
+            return true;
         }
         catch (Exception ex)
         {
             MessageDialog.Show($"Error saving file: {ex.Message}", "Save Error",
                 MessageDialogType.Error, MessageDialogButtons.Ok);
+            return false;
         }
     }
 
-    [RelayCommand]
-    private void SaveFileAs()
+    public bool PerformSaveAs()
     {
-        if (!IsFileLoaded || _loadedFile == null) return;
+        if (!IsFileLoaded || _loadedFile == null) return false;
 
         var dialog = new SaveFileDialog
         {
@@ -160,6 +190,7 @@ public partial class MainViewModel : ObservableObject
                 _loadedFile.Save(dialog.FileName);
                 _currentFilePath = dialog.FileName;
 
+                _isContentModified = false;
                 // Reset modified state after successful save
                 foreach (var table in Tables)
                 {
@@ -168,23 +199,30 @@ public partial class MainViewModel : ObservableObject
 
                 WindowTitle = $"Gexter by VPZ - {Path.GetFileName(dialog.FileName)}";
                 StatusMessage = $"Saved to {Path.GetFileName(dialog.FileName)}";
+                return true;
             }
             catch (Exception ex)
             {
                 MessageDialog.Show($"Error saving file: {ex.Message}", "Save Error",
                     MessageDialogType.Error, MessageDialogButtons.Ok);
+                return false;
             }
         }
+
+        return false;
     }
 
     [RelayCommand]
     private void CloseFile()
     {
+        if (!ConfirmDiscardChanges()) return;
+
         Tables.Clear();
         FilteredTables.Clear();
         FilteredEntries.Clear();
         _loadedFile = null;
         _currentFilePath = null;
+        _isContentModified = false;
         IsFileLoaded = false;
         TotalTables = 0;
         TotalEntries = 0;
@@ -318,6 +356,7 @@ public partial class MainViewModel : ObservableObject
         {
             var name = SelectedTable.Name;
             Tables.Remove(SelectedTable);
+            _isContentModified = true;
             ApplyTableFilter();
             TotalTables = Tables.Count;
             StatusMessage = $"Removed table '{name}'";
@@ -488,6 +527,7 @@ public partial class MainViewModel : ObservableObject
             SearchText = string.Empty;
             TableSearchText = string.Empty;
             CaseSensitive = false;
+            _isContentModified = false;
 
             _loadedFile = GxtLoader.Load(filePath, keepKeyNames: true);
             _currentFilePath = filePath;
@@ -620,42 +660,24 @@ public partial class MainViewModel : ObservableObject
 
     private void ExportTablesToJson(string filePath)
     {
-        using var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8);
-        writer.WriteLine("{");
-        writer.WriteLine($"  \"version\": \"{FileVersion}\",");
-        writer.WriteLine("  \"tables\": [");
-
-        for (int t = 0; t < Tables.Count; t++)
+        var data = new
         {
-            var table = Tables[t];
-            writer.WriteLine("    {");
-            writer.WriteLine($"      \"name\": \"{EscapeJson(table.Name)}\",");
-            writer.WriteLine("      \"entries\": [");
-
-            for (int e = 0; e < table.Entries.Count; e++)
+            version = FileVersion.ToString(),
+            tables = Tables.Select(t => new
             {
-                var entry = table.Entries[e];
-                var comma = e < table.Entries.Count - 1 ? "," : "";
-                writer.WriteLine($"        {{ \"hash\": \"{entry.KeyHashHex}\", \"key\": \"{EscapeJson(entry.KeyName)}\", \"value\": \"{EscapeJson(entry.Value)}\" }}{comma}");
-            }
+                name = t.Name,
+                entries = t.Entries.Select(e => new
+                {
+                    hash = e.KeyHashHex,
+                    key = e.KeyName,
+                    value = e.Value
+                })
+            })
+        };
 
-            writer.WriteLine("      ]");
-            var tableComma = t < Tables.Count - 1 ? "," : "";
-            writer.WriteLine($"    }}{tableComma}");
-        }
-
-        writer.WriteLine("  ]");
-        writer.WriteLine("}");
-    }
-
-    private static string EscapeJson(string text)
-    {
-        return text
-            .Replace("\\", "\\\\")
-            .Replace("\"", "\\\"")
-            .Replace("\n", "\\n")
-            .Replace("\r", "\\r")
-            .Replace("\t", "\\t");
+        // ponytail: stream directly via Utf8JsonWriter if memory becomes an issue on massive GXT tables
+        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(filePath, json, Encoding.UTF8);
     }
 
     private void SyncModelsToFile()

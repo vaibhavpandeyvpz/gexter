@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;net472;net481;netstandard2.0;netcoreapp3.1;net5.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net452;net472;net481;netstandard2.0;net8.0;net9.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
@@ -19,10 +19,6 @@
     <!-- Required for Windows-1252 encoding support on .NET Core/.NET 5+ (not needed for .NET Framework) -->
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'net472' AND '$(TargetFramework)' != 'net481'" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'netcoreapp3.1'">
-    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
-  </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net481'">
     <Reference Include="System.Text.Encoding" />

@@ -1,4 +1,4 @@
-﻿using FontAwesome.WPF;
+﻿using FontAwesome.Sharp;
 using Gexter.Desktop.ViewModels;
 using System.Windows;
 using System.Windows.Input;
@@ -21,14 +21,19 @@ public partial class MainWindow : Window
         }
 
         StateChanged += MainWindow_StateChanged;
+        Closing += (s, e) =>
+        {
+            if (!ViewModel.ConfirmDiscardChanges())
+                e.Cancel = true;
+        };
     }
 
     private void MainWindow_StateChanged(object? sender, EventArgs e)
     {
         // Update maximize/restore icon
         MaximizeIcon.Icon = WindowState == WindowState.Maximized
-            ? FontAwesomeIcon.WindowRestore
-            : FontAwesomeIcon.WindowMaximize;
+            ? IconChar.WindowRestore
+            : IconChar.WindowMaximize;
     }
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -78,7 +83,10 @@ public partial class MainWindow : Window
                 var file = files[0];
                 if (file.EndsWith(".gxt", StringComparison.OrdinalIgnoreCase))
                 {
-                    ViewModel.LoadFile(file);
+                    if (ViewModel.ConfirmDiscardChanges())
+                    {
+                        ViewModel.LoadFile(file);
+                    }
                 }
                 else
                 {
